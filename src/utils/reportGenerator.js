@@ -9,7 +9,14 @@ export function downloadAccountReport(acc, app, accountInvestigations) {
     `Type: ${acc.type}`,
     `Status: ${acc.status}`,
     `Risk: ${acc.risk}`,
-    `Owner: ${acc.owner}`,
+    ``,
+    `Owner: ${acc.owner.name}`,
+    `  Username: ${acc.owner.username}`,
+    `  Employee ID: ${acc.owner.employeeId}`,
+    `  Email: ${acc.owner.email}`,
+    `  Department: ${acc.owner.department}`,
+    `  Title: ${acc.owner.title}`,
+    ``,
     `Last Activity: ${acc.lastActivity}`,
     `Investigation: ${inv ? INVESTIGATION_STATES[inv.state]?.label : "N/A"}`,
     acc.isAgent
@@ -29,17 +36,21 @@ export function downloadAccountReport(acc, app, accountInvestigations) {
 
 export function downloadAppReport(app, accountInvestigations) {
   const header =
-    "ID,Name,Type,Status,Risk,Owner,LastActivity,IsAgent,InvestigationStatus";
+    "ID,Name,Type,Status,Risk,Owner,OwnerEmail,Department,LastActivity,IsAgent,InvestigationStatus";
   const rows = app.accounts.map((a) => {
     const inv = accountInvestigations[a.id];
-    return `${a.id},${a.name},${a.type},${a.status},${a.risk},${a.owner},${
-      a.lastActivity
-    },${a.isAgent},${inv ? INVESTIGATION_STATES[inv.state]?.label : "N/A"}`;
+    return `${a.id},${a.name},${a.type},${a.status},${a.risk},${a.owner.name},${
+      a.owner.email
+    },${a.owner.department},${a.lastActivity},${a.isAgent},${
+      inv ? INVESTIGATION_STATES[inv.state]?.label : "N/A"
+    }`;
   });
-  const blob = new Blob(
-    [[`NHI Remediation Report — ${app.name}\n\n`, header, ...rows].join("\n")],
-    { type: "text/csv" }
-  );
+  const content = [
+    `NHI Remediation Report — ${app.name}\n\n`,
+    header,
+    ...rows,
+  ].join("\n");
+  const blob = new Blob([content], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

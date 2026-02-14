@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Icons } from "./Icons";
 import {
   StatusBadge,
@@ -6,6 +7,7 @@ import {
   MiniProgress,
   Checkbox,
 } from "./Badges";
+import OwnerModal from "./OwnerModal";
 
 export default function ExpandedAccounts({
   app,
@@ -24,6 +26,20 @@ export default function ExpandedAccounts({
   onInvestigate,
   onDownloadReport,
 }) {
+  const [selectedOwner, setSelectedOwner] = useState(null);
+
+  const isSelectable = (acc) => acc.status !== "Active";
+  const selectableFiltered = filteredAccounts.filter(isSelectable);
+  const allSelectableSelected =
+    selectableFiltered.length > 0 &&
+    selectableFiltered.every((a) => selectedAccounts.has(a.id));
+
+  const handleOwnerClick = (e, owner) => {
+    e.stopPropagation();
+    if (owner.name === "Unassigned") return;
+    setSelectedOwner(owner);
+  };
+
   return (
     <div
       style={{
@@ -32,17 +48,8 @@ export default function ExpandedAccounts({
       }}
     >
       {/* Toolbar */}
-      <div
-        style={{
-          padding: "12px 24px 12px 64px",
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          flexWrap: "wrap",
-          borderBottom: "0.5px solid rgba(255,255,255,0.03)",
-        }}
-      >
-        <div style={{ position: "relative", flex: "0 0 220px" }}>
+      <div className="account-toolbar">
+        <div className="account-search-wrap">
           <span
             style={{
               position: "absolute",
@@ -58,122 +65,71 @@ export default function ExpandedAccounts({
             value={accountSearch}
             onChange={(e) => onAccountSearchChange(e.target.value)}
             placeholder="Search accounts..."
-            style={{
-              width: "100%",
-              height: 30,
-              borderRadius: 8,
-              border: "0.5px solid rgba(255,255,255,0.06)",
-              background: "rgba(255,255,255,0.03)",
-              color: "#F5F5F7",
-              paddingLeft: 30,
-              paddingRight: 10,
-              fontSize: 12,
-              outline: "none",
-              fontFamily: "inherit",
-              boxSizing: "border-box",
-            }}
+            className="account-search-input"
           />
         </div>
 
-        {["All", "Active", "Stale", "Orphaned", "Unknown"].map((f) => (
-          <button
-            key={f}
-            onClick={() => onStatusFilterChange(f)}
-            style={{
-              height: 26,
-              padding: "0 10px",
-              borderRadius: 13,
-              border:
-                accountStatusFilter === f
-                  ? "none"
-                  : "0.5px solid rgba(255,255,255,0.06)",
-              background:
-                accountStatusFilter === f
-                  ? "rgba(0,113,227,0.7)"
-                  : "transparent",
-              color: accountStatusFilter === f ? "#fff" : "#86868B",
-              fontSize: 10,
-              fontWeight: 500,
-              cursor: "pointer",
-              fontFamily: "inherit",
-            }}
-          >
-            {f}
-          </button>
-        ))}
+        <div className="account-filters">
+          {["All", "Active", "Stale", "Orphaned"].map((f) => (
+            <button
+              key={f}
+              onClick={() => onStatusFilterChange(f)}
+              className="filter-pill-sm"
+              style={{
+                border:
+                  accountStatusFilter === f
+                    ? "none"
+                    : "0.5px solid rgba(255,255,255,0.06)",
+                background:
+                  accountStatusFilter === f
+                    ? "rgba(0,113,227,0.7)"
+                    : "transparent",
+                color: accountStatusFilter === f ? "#fff" : "#86868B",
+              }}
+            >
+              {f}
+            </button>
+          ))}
 
-        <div
-          style={{
-            width: 1,
-            height: 16,
-            background: "rgba(255,255,255,0.06)",
-            margin: "0 4px",
-          }}
-        />
+          <div className="filter-divider" />
 
-        {["All", "Agents", "Service", "Generic", "API"].map((f) => (
-          <button
-            key={f}
-            onClick={() => onTypeFilterChange(f)}
-            style={{
-              height: 26,
-              padding: "0 10px",
-              borderRadius: 13,
-              border:
-                accountTypeFilter === f
-                  ? "none"
-                  : "0.5px solid rgba(255,255,255,0.06)",
-              background:
-                accountTypeFilter === f ? "rgba(255,55,95,0.6)" : "transparent",
-              color: accountTypeFilter === f ? "#fff" : "#86868B",
-              fontSize: 10,
-              fontWeight: 500,
-              cursor: "pointer",
-              fontFamily: "inherit",
-            }}
-          >
-            {f === "Agents" ? "🤖 Agents" : f}
-          </button>
-        ))}
+          {["All", "Agents", "Service", "Generic"].map((f) => (
+            <button
+              key={f}
+              onClick={() => onTypeFilterChange(f)}
+              className="filter-pill-sm"
+              style={{
+                border:
+                  accountTypeFilter === f
+                    ? "none"
+                    : "0.5px solid rgba(255,255,255,0.06)",
+                background:
+                  accountTypeFilter === f
+                    ? "rgba(255,55,95,0.6)"
+                    : "transparent",
+                color: accountTypeFilter === f ? "#fff" : "#86868B",
+              }}
+            >
+              {f === "Agents" ? "🤖 Agents" : f}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Table Header */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "32px 2fr 1fr .8fr .7fr .6fr 1.4fr .7fr",
-          padding: "8px 24px 8px 64px",
-          borderBottom: "0.5px solid rgba(255,255,255,0.03)",
-        }}
-      >
-        <div
-          style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
-          onClick={onSelectAll}
-        >
-          <Checkbox checked={allFilteredSelected} onChange={onSelectAll} />
+      {/* Column Headers */}
+      <div className="account-header">
+        <div className="account-header-check" onClick={onSelectAll}>
+          <Checkbox checked={allSelectableSelected} onChange={onSelectAll} />
         </div>
-        {[
-          "Account",
-          "Type",
-          "Status",
-          "Risk",
-          "Owner",
-          "Investigation",
-          "Report",
-        ].map((h) => (
-          <span
-            key={h}
-            style={{
-              fontSize: 10,
-              fontWeight: 600,
-              color: "#48484A",
-              textTransform: "uppercase",
-              letterSpacing: 0.8,
-            }}
-          >
-            {h}
-          </span>
-        ))}
+        <span className="account-header-col">Account</span>
+        <span className="account-header-col">Type</span>
+        <span className="account-header-col">Status</span>
+        <span className="account-header-col account-col-desktop">Risk</span>
+        <span className="account-header-col account-col-desktop">Owner</span>
+        <span className="account-header-col account-col-desktop">
+          Investigation
+        </span>
+        <span className="account-header-col">Report</span>
       </div>
 
       {/* Account Rows */}
@@ -184,19 +140,13 @@ export default function ExpandedAccounts({
           const isFailed = inv?.state === "failed";
           const isRunning =
             inv && !["complete", "failed", "idle"].includes(inv.state);
+          const canSelect = isSelectable(acc);
 
           return (
             <div
               key={acc.id}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "32px 2fr 1fr .8fr .7fr .6fr 1.4fr .7fr",
-                padding: "9px 24px 9px 64px",
-                alignItems: "center",
-                borderBottom: "0.5px solid rgba(255,255,255,0.02)",
-                transition: "background 0.1s",
-                cursor: "default",
-              }}
+              className="account-row"
+              style={{ opacity: canSelect ? 1 : 0.55 }}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.background = "rgba(255,255,255,0.02)")
               }
@@ -204,54 +154,83 @@ export default function ExpandedAccounts({
                 (e.currentTarget.style.background = "transparent")
               }
             >
-              <Checkbox
-                checked={selectedAccounts.has(acc.id)}
-                onChange={() => onToggleAccount(acc.id)}
-              />
-              <div>
-                <div
+              {/* Checkbox */}
+              {canSelect ? (
+                <Checkbox
+                  checked={selectedAccounts.has(acc.id)}
+                  onChange={() => onToggleAccount(acc.id)}
+                />
+              ) : (
+                <span
                   style={{
-                    fontSize: 12,
-                    fontWeight: 500,
-                    color: "#F5F5F7",
-                    fontFamily: "'SF Mono', SFMono-Regular, Menlo, monospace",
+                    width: 16,
+                    height: 16,
+                    borderRadius: 4,
+                    border: "1.5px solid rgba(255,255,255,0.06)",
+                    display: "inline-flex",
+                    cursor: "not-allowed",
                   }}
-                >
-                  {acc.name}
-                </div>
-                <div style={{ fontSize: 10, color: "#48484A", marginTop: 1 }}>
-                  {acc.id} · {acc.owner}
+                />
+              )}
+
+              {/* Account */}
+              <div style={{ minWidth: 0 }}>
+                <div className="account-name">{acc.name}</div>
+                <div className="account-meta">
+                  <span>{acc.id}</span>
+                  <span className="account-meta-desktop">
+                    · {acc.owner.name}
+                  </span>
                 </div>
               </div>
+
+              {/* Type */}
               <TypeBadge type={acc.type} isAgent={acc.isAgent} />
+
+              {/* Status */}
               <StatusBadge status={acc.status} />
-              <RiskBadge risk={acc.risk} />
-              <span style={{ fontSize: 11, color: "#86868B" }}>
-                {acc.lastActivity}
-              </span>
-              <MiniProgress
-                state={inv?.state || "idle"}
-                progress={inv?.progress || 0}
-              />
+
+              {/* Risk — desktop */}
+              <div className="account-col-desktop">
+                <RiskBadge risk={acc.risk} />
+              </div>
+
+              {/* Owner — desktop, clickable */}
+              <div className="account-col-desktop">
+                <span
+                  onClick={(e) => handleOwnerClick(e, acc.owner)}
+                  style={{
+                    fontSize: 11,
+                    color:
+                      acc.owner.name === "Unassigned" ? "#48484A" : "#0A84FF",
+                    cursor:
+                      acc.owner.name === "Unassigned" ? "default" : "pointer",
+                    fontWeight: 500,
+                    borderBottom:
+                      acc.owner.name === "Unassigned"
+                        ? "none"
+                        : "1px dashed rgba(10,132,255,0.3)",
+                    paddingBottom: 1,
+                  }}
+                >
+                  {acc.owner.name}
+                </span>
+              </div>
+
+              {/* Investigation — desktop */}
+              <div className="account-col-desktop">
+                <MiniProgress
+                  state={inv?.state || "idle"}
+                  progress={inv?.progress || 0}
+                />
+              </div>
+
+              {/* Report */}
               <div>
                 {isComplete || acc.reportReady ? (
                   <button
                     onClick={() => onDownloadReport(acc)}
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 4,
-                      height: 26,
-                      padding: "0 10px",
-                      borderRadius: 6,
-                      border: "none",
-                      background: "rgba(48,209,88,0.1)",
-                      color: "#30D158",
-                      fontSize: 10,
-                      fontWeight: 500,
-                      cursor: "pointer",
-                      fontFamily: "inherit",
-                    }}
+                    className="report-btn"
                     onMouseEnter={(e) =>
                       (e.currentTarget.style.background =
                         "rgba(48,209,88,0.18)")
@@ -260,7 +239,7 @@ export default function ExpandedAccounts({
                       (e.currentTarget.style.background = "rgba(48,209,88,0.1)")
                     }
                   >
-                    <Icons.File /> Report
+                    <Icons.File /> <span className="report-label">Report</span>
                   </button>
                 ) : isRunning ? (
                   <span
@@ -273,7 +252,7 @@ export default function ExpandedAccounts({
                     …
                   </span>
                 ) : isFailed ? (
-                  <span style={{ fontSize: 10, color: "#FF453A" }}>Failed</span>
+                  <span style={{ fontSize: 10, color: "#FF453A" }}>✕</span>
                 ) : (
                   <span style={{ fontSize: 10, color: "#2C2C2E" }}>—</span>
                 )}
@@ -296,43 +275,25 @@ export default function ExpandedAccounts({
       </div>
 
       {/* Footer */}
-      <div
-        style={{
-          padding: "10px 24px 10px 64px",
-          borderTop: "0.5px solid rgba(255,255,255,0.04)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          background: "rgba(0,0,0,0.2)",
-        }}
-      >
+      <div className="expanded-footer">
         <span style={{ fontSize: 12, color: "#86868B" }}>
-          {filteredAccounts.length} accounts · {selectedAccounts.size} selected
+          {filteredAccounts.length} accounts · {selectableFiltered.length}{" "}
+          selectable · {selectedAccounts.size} selected
         </span>
         {selectedAccounts.size > 0 && (
-          <button
-            onClick={onInvestigate}
-            style={{
-              height: 32,
-              padding: "0 18px",
-              borderRadius: 8,
-              border: "none",
-              background: "linear-gradient(135deg,#0071E3,#0A84FF)",
-              color: "#fff",
-              fontSize: 13,
-              fontWeight: 600,
-              cursor: "pointer",
-              fontFamily: "inherit",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            <Icons.Play /> Investigate {selectedAccounts.size} Account
-            {selectedAccounts.size > 1 ? "s" : ""}
+          <button onClick={onInvestigate} className="investigate-btn-primary">
+            <Icons.Play /> Investigate {selectedAccounts.size}
           </button>
         )}
       </div>
+
+      {/* Owner Modal */}
+      {selectedOwner && (
+        <OwnerModal
+          owner={selectedOwner}
+          onClose={() => setSelectedOwner(null)}
+        />
+      )}
     </div>
   );
 }
