@@ -148,7 +148,7 @@ export default function App() {
             WebkitTextFillColor: "transparent",
           }}
         >
-          Identity Governance
+          Non-Human Identity Governance
         </h1>
         <p
           style={{
@@ -160,6 +160,8 @@ export default function App() {
           }}
         >
           Investigate and remediate non-human identities across your enterprise.
+          Sit back and relax while agents do the investigation and report you
+          back with findings, approvals
         </p>
       </div>
 
