@@ -84,6 +84,23 @@ function generateAccounts(count, prefix, includeAgents = false) {
 
 export const MOCK_APPLICATIONS = [
   {
+    id: "entra-saas",
+    name: "Entra ID",
+    platform: "Cloud",
+    accounts: generateAccounts(210, "ENTRA", true),
+    icon: "○",
+    color: "#BF5AF2",
+  },
+
+  {
+    id: "unix-legacy",
+    name: "UNIX Legacy Infra",
+    platform: "UNIX/Linux",
+    accounts: generateAccounts(67, "UNIX", false),
+    icon: "◇",
+    color: "#30D158",
+  },
+  {
     id: "sap-prod",
     name: "SAP Production",
     platform: "Windows",
@@ -99,22 +116,7 @@ export const MOCK_APPLICATIONS = [
     icon: "△",
     color: "#FF9F0A",
   },
-  {
-    id: "unix-legacy",
-    name: "UNIX Legacy Infra",
-    platform: "UNIX/Linux",
-    accounts: generateAccounts(67, "UNIX", false),
-    icon: "◇",
-    color: "#30D158",
-  },
-  {
-    id: "entra-saas",
-    name: "Entra ID SaaS",
-    platform: "SaaS",
-    accounts: generateAccounts(210, "ENTRA", true),
-    icon: "○",
-    color: "#BF5AF2",
-  },
+
   {
     id: "gcp-data",
     name: "GCP Data Platform",
@@ -125,7 +127,7 @@ export const MOCK_APPLICATIONS = [
   },
   {
     id: "mainframe",
-    name: "Mainframe z/OS",
+    name: "Legacy",
     platform: "Legacy",
     accounts: generateAccounts(89, "MF", false),
     icon: "⬢",
