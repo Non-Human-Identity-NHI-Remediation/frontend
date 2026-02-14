@@ -60,7 +60,7 @@ export default function Navbar({ accountInvestigations }) {
                 color: "#FF9F0A",
               }}
             >
-              <Icons.Spinner /> Processing
+              <Icons.Spinner /> Processing...
             </div>
           )}
           <div

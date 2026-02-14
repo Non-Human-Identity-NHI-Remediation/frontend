@@ -1,4 +1,4 @@
-name: CI
+name: Build & Deploy to Pages
 
 on:
   push:
@@ -10,23 +10,25 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Required for GitHub Pages deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   build:
     name: Build & Validate
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [20]
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 20
           cache: "npm"
 
       - name: Install dependencies
@@ -47,3 +49,31 @@ jobs:
           echo "✅ Build output verified"
           echo "📦 Build size:"
           du -sh dist/
+
+      # Upload for GitHub Pages — only on the org repo, only on push to main
+      - name: Upload Pages artifact
+        if: |
+          github.repository == 'Non-Human-Identity-NHI-Remediation/frontend' &&
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'push'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+
+  # Deploy job — only runs on the org repo after push to main (i.e. after PR merge)
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    if: |
+      github.repository == 'Non-Human-Identity-NHI-Remediation/frontend' &&
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
