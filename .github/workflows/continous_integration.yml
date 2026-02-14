@@ -49,6 +49,12 @@ jobs:
           echo "✅ Build output verified"
           echo "📦 Build size:"
           du -sh dist/
+          echo ""
+          echo "📂 dist/ contents:"
+          ls -la dist/
+          echo ""
+          echo "📄 dist/index.html head:"
+          head -20 dist/index.html
 
       # Upload for GitHub Pages — only on the org repo, only on push to main
       - name: Upload Pages artifact
