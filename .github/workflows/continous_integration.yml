@@ -1,4 +1,4 @@
-name: CI & Deploy
+name: Build & Deploy to Pages
 
 on:
   push:
@@ -50,20 +50,25 @@ jobs:
           echo "📦 Build size:"
           du -sh dist/
 
-      # Upload specifically for GitHub Pages
+      # Upload for GitHub Pages — only on the org repo, only on push to main
       - name: Upload Pages artifact
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: |
+          github.repository == 'Non-Human-Identity-NHI-Remediation/frontend' &&
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'push'
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist/
 
-  # Deploy job — only runs on push to main (not on PRs)
+  # Deploy job — only runs on the org repo after push to main (i.e. after PR merge)
   deploy:
     name: Deploy to GitHub Pages
     needs: build
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: |
+      github.repository == 'Non-Human-Identity-NHI-Remediation/frontend' &&
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push'
     runs-on: ubuntu-latest
-
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
