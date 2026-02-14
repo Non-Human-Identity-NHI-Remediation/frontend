@@ -16,13 +16,8 @@ export default function AppRow({
   return (
     <div
       onClick={onToggle}
+      className="app-row"
       style={{
-        display: "grid",
-        gridTemplateColumns: "2.2fr .7fr .6fr .6fr .6fr 1.6fr .7fr .5fr",
-        padding: "14px 24px",
-        alignItems: "center",
-        cursor: "pointer",
-        transition: "background 0.15s",
         background: isExpanded ? "rgba(255,255,255,0.03)" : "transparent",
       }}
       onMouseEnter={(e) => {
@@ -30,12 +25,17 @@ export default function AppRow({
           e.currentTarget.style.background = "rgba(255,255,255,0.025)";
       }}
       onMouseLeave={(e) => {
-        if (!isExpanded) e.currentTarget.style.background = "transparent";
+        if (!isExpanded)
+          e.currentTarget.style.background = isExpanded
+            ? "rgba(255,255,255,0.03)"
+            : "transparent";
       }}
     >
-      {/* Name + Icon */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <span style={{ color: "#86868B" }}>
+      {/* Name + Icon — always visible */}
+      <div
+        style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}
+      >
+        <span style={{ color: "#86868B", flexShrink: 0 }}>
           <Icons.ChevronDown open={isExpanded} />
         </span>
         <div
@@ -55,21 +55,54 @@ export default function AppRow({
             <span style={{ fontSize: 15, color: app.color }}>{app.icon}</span>
           )}
         </div>
-        <div>
-          <div style={{ fontSize: 14, fontWeight: 500, color: "#F5F5F7" }}>
+        <div style={{ minWidth: 0 }}>
+          <div
+            style={{
+              fontSize: 14,
+              fontWeight: 500,
+              color: "#F5F5F7",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
             {app.name}
           </div>
-          <div style={{ fontSize: 11, color: "#48484A", marginTop: 1 }}>
-            {app.platform}
+          <div className="app-row-meta">
+            <span>{app.platform}</span>
+            <span>·</span>
+            <span>{app.accounts.length} accounts</span>
+            {agents > 0 && (
+              <>
+                <span>·</span>
+                <span style={{ color: "#FF375F" }}>🤖 {agents}</span>
+              </>
+            )}
+            {stale > 0 && (
+              <>
+                <span>·</span>
+                <span style={{ color: "#FF9F0A" }}>{stale} stale</span>
+              </>
+            )}
+            {orphaned > 0 && (
+              <>
+                <span>·</span>
+                <span style={{ color: "#FF453A" }}>{orphaned} orphaned</span>
+              </>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Counts */}
-      <span style={{ fontSize: 13, fontWeight: 600, color: "#F5F5F7" }}>
+      {/* Desktop-only columns */}
+      <span
+        className="app-col-desktop"
+        style={{ fontSize: 13, fontWeight: 600, color: "#F5F5F7" }}
+      >
         {app.accounts.length}
       </span>
       <span
+        className="app-col-desktop"
         style={{
           fontSize: 13,
           fontWeight: 600,
@@ -80,6 +113,7 @@ export default function AppRow({
         {agents}
       </span>
       <span
+        className="app-col-desktop"
         style={{
           fontSize: 13,
           fontWeight: 600,
@@ -89,6 +123,7 @@ export default function AppRow({
         {stale}
       </span>
       <span
+        className="app-col-desktop"
         style={{
           fontSize: 13,
           fontWeight: 600,
@@ -99,7 +134,7 @@ export default function AppRow({
       </span>
 
       {/* Progress */}
-      <div>
+      <div className="app-col-desktop">
         {summary ? (
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div
@@ -134,7 +169,7 @@ export default function AppRow({
       </div>
 
       {/* Report */}
-      <div onClick={(e) => e.stopPropagation()}>
+      <div className="app-col-desktop" onClick={(e) => e.stopPropagation()}>
         <button
           onClick={onDownload}
           style={{
@@ -158,25 +193,13 @@ export default function AppRow({
       </div>
 
       {/* Investigate */}
-      <div onClick={(e) => e.stopPropagation()} style={{ textAlign: "right" }}>
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{ textAlign: "right", flexShrink: 0 }}
+      >
         <button
           onClick={onInvestigate}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 4,
-            height: 28,
-            padding: "0 11px",
-            borderRadius: 7,
-            border: "none",
-            background: "rgba(0,113,227,0.15)",
-            color: "#0A84FF",
-            fontSize: 11,
-            fontWeight: 600,
-            cursor: "pointer",
-            fontFamily: "inherit",
-            transition: "all 0.2s",
-          }}
+          className="investigate-btn"
           onMouseEnter={(e) =>
             (e.currentTarget.style.background = "rgba(0,113,227,0.25)")
           }
@@ -184,7 +207,7 @@ export default function AppRow({
             (e.currentTarget.style.background = "rgba(0,113,227,0.15)")
           }
         >
-          <Icons.Play /> Investigate
+          <Icons.Play /> <span className="investigate-label">Investigate</span>
         </button>
       </div>
     </div>

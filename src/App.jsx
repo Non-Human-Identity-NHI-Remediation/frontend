@@ -96,7 +96,9 @@ export default function App() {
   };
 
   const selectAllFiltered = (app) => {
-    const filtered = getFilteredAccounts(app);
+    const filtered = getFilteredAccounts(app).filter(
+      (a) => a.status !== "Active"
+    );
     const allSelected = filtered.every((a) => selectedAccounts.has(a.id));
     setSelectedAccounts((prev) => {
       const next = new Set(prev);
@@ -133,7 +135,7 @@ export default function App() {
       <Navbar accountInvestigations={accountInvestigations} />
 
       {/* Hero */}
-      <div style={{ maxWidth: 1320, margin: "0 auto", padding: "44px 32px 0" }}>
+      <div className="page-container" style={{ paddingTop: 44 }}>
         <h1
           style={{
             fontSize: 38,
@@ -146,7 +148,7 @@ export default function App() {
             WebkitTextFillColor: "transparent",
           }}
         >
-          Non-Human Identity Governance
+          Identity Governance
         </h1>
         <p
           style={{
@@ -157,9 +159,7 @@ export default function App() {
             letterSpacing: -0.2,
           }}
         >
-          Investigate and remediate non-human identities with AI Agents across
-          your enterprise. Sit back and relax while agents do the investigations
-          and report you back.
+          Investigate and remediate non-human identities across your enterprise.
         </p>
       </div>
 
@@ -175,7 +175,8 @@ export default function App() {
 
       {/* Application Table */}
       <div
-        style={{ maxWidth: 1320, margin: "0 auto", padding: "20px 32px 64px" }}
+        className="page-container"
+        style={{ paddingTop: 20, paddingBottom: 64 }}
       >
         <div
           style={{
@@ -186,15 +187,7 @@ export default function App() {
           }}
         >
           {/* Table Header */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "2.2fr .7fr .6fr .6fr .6fr 1.6fr .7fr .5fr",
-              padding: "10px 24px",
-              borderBottom: "0.5px solid rgba(255,255,255,0.06)",
-              background: "rgba(255,255,255,0.02)",
-            }}
-          >
+          <div className="app-table-header">
             {[
               "Application",
               "Accounts",
@@ -205,18 +198,7 @@ export default function App() {
               "Report",
               "",
             ].map((h) => (
-              <span
-                key={h}
-                style={{
-                  fontSize: 10,
-                  fontWeight: 600,
-                  color: "#48484A",
-                  textTransform: "uppercase",
-                  letterSpacing: 0.8,
-                }}
-              >
-                {h}
-              </span>
+              <span key={h}>{h}</span>
             ))}
           </div>
 

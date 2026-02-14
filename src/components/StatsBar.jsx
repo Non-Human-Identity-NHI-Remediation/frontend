@@ -43,24 +43,13 @@ export default function StatsBar({ applications }) {
   ];
 
   return (
-    <div style={{ maxWidth: 1320, margin: "0 auto", padding: "28px 32px 0" }}>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4,1fr)",
-          gap: 14,
-        }}
-      >
+    <div className="stats-bar">
+      <div className="stats-grid">
         {stats.map((stat, i) => (
           <div
             key={i}
-            style={{
-              background: "rgba(255,255,255,0.03)",
-              borderRadius: 14,
-              padding: "18px 22px",
-              border: "0.5px solid rgba(255,255,255,0.06)",
-              animation: `fadeIn 0.5s ease ${i * 0.07}s both`,
-            }}
+            className="stat-card"
+            style={{ animation: `fadeIn 0.5s ease ${i * 0.07}s both` }}
           >
             <div
               style={{
